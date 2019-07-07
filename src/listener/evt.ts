@@ -50,6 +50,16 @@ class EvtListener {
         isSwapAction = false;
       }
 
+      if (get(action, "data.memo", "") === config.binanceSwapAddress) {
+        console.warn(
+          `Warning: Skipping Transaction which sends EVT with Binance swap address "${
+            config.binanceSwapAddress
+          }" as memo.`
+        );
+
+        isSwapAction = false;
+      }
+
       return isSwapAction;
     });
 
