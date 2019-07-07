@@ -1,6 +1,7 @@
 import Binance from "./binance";
 import config from "./config";
 import BinanceChain from "@binance-chain/javascript-sdk";
+import { get } from "lodash";
 
 const words =
   "dose boring turtle beef mind scheme estate board range beyond wife there blossom cat chronic cloth kid slide toilet elder delay weekend accuse pull";
@@ -49,6 +50,9 @@ export const transfer = async (
   const trx = await client.transfer(from, to, amount, "BNB");
   console.log(trx);
 };
+
+export const getMemoFromTransaction = (trx: Object) =>
+  get(trx, "tx.value.memo", "");
 
 // transfer(
 //   "bb39528620cff4917fb63108b56b254f668a79ad187edeeacd50ad7f1aec4865",
