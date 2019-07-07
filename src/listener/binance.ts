@@ -91,7 +91,7 @@ class BinanceListener {
   };
 
   handleOpen = () => {
-    console.log(`[INFO]: websocket (${config.ws}) Opened`);
+    console.log(`[INFO]: websocket (${config.ws}) opened`);
     this.send({
       method: "subscribe",
       topic: "transfers",

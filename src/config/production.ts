@@ -4,13 +4,12 @@ export default {
   evtNetwork: { host: "mainnet1.everitoken.io", port: 443, protocol: "https" },
   db: {
     host: "127.0.0.1",
-    user: "",
-    password: "",
+    user: "", // this needs to be changed
+    password: "", // this needs to be changed
     database: "bnbbridge"
   },
   evtSwapAddresses: [],
   binanceSwapAddress: "",
-  binanceChainSymbol: "EVT",
-  prefix: "bnb",
-  testnet: false
+  binanceChainSymbol: "EVT-xxx", // this need to changed
+  prefix: "bnb"
 };

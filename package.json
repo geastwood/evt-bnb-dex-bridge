@@ -4,7 +4,9 @@
   "description": "EveriToken to Binance Chain bridge",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "listen:evt": "ts-node src/listener/evt",
+    "listen:binance": "ts-node src/listener/binance",
+    "setup:db": "ts-node src/db/setup"
   },
   "keywords": [
     "everitoken",

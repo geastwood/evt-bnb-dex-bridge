@@ -29,13 +29,5 @@ class DB {
     return instance;
   };
 }
+
 export default DB;
-
-// const run = async () => {
-//   const db = await DB.getInstance();
-//   const d = await db.getLastLib();
-
-//   console.log(d[0].lib, "done");
-// };
-
-// run();
