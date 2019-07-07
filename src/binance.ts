@@ -2,12 +2,19 @@ import config from "./config/index";
 import BinanceChain from "@binance-chain/javascript-sdk";
 import { writeFileSync } from "fs";
 import { join } from "path";
+import fetch from "isomorphic-fetch";
+import { getMemoFromTransaction } from "./utils";
 
 class Binance {
   readonly client: any;
   constructor(url: string) {
     this.client = new BinanceChain(url);
   }
+
+  static getTrx = async (hash: string) => {
+    const d = await fetch(`${config.api}api/v1/tx/${hash}?format=json`);
+    return d.json();
+  };
 
   static createClient = async (url: string, fn: (client: any) => void) => {
     const client = new Binance(url);
@@ -94,23 +101,38 @@ class Binance {
 
 export default Binance;
 
-const words =
-  "dose boring turtle beef mind scheme estate board range beyond wife there blossom cat chronic cloth kid slide toilet elder delay weekend accuse pull";
+// const run = async () => {
+//   const trx = await Binance.getTrx(
+//     "DE35196F2294ED197A840740429F501CF1FA483A489D6EBD986C3BB553C45A10"
+//   );
+//   console.log(getMemoFromTransaction(trx));
+// };
+// run();
+// const words =
+//   "dose boring turtle beef mind scheme estate board range beyond wife there blossom cat chronic cloth kid slide toilet elder delay weekend accuse pull";
 
-const run = async () => {
-  const privateKey = Binance.getPrivateKey(words);
-  const { client } = await Binance.createClientWithPrivateKey(
-    config.api,
-    privateKey
-  );
-  const trx = await client.tokens.issue(
-    "tbnb1ltytz6mm37fjpha4gu9zl4plu93fmhgns66ahd",
-    "Material Coin",
-    "MCB",
-    10000000000,
-    false
-  );
-  console.log(trx);
-};
+// const run = async () => {
+//   const privateKey = Binance.getPrivateKey(words);
+//   const client = await Binance.createClientWithPrivateKey(
+//     config.api,
+//     privateKey
+//   );
 
-run();
+//   const b = await client.getBalance(
+//     "tbnb1ltytz6mm37fjpha4gu9zl4plu93fmhgns66ahd",
+//     "MCB-074"
+//   );
+
+//   console.log(b);
+
+//   //   const trx = await client.tokens.issue(
+//   //     "tbnb1ltytz6mm37fjpha4gu9zl4plu93fmhgns66ahd",
+//   //     "Material Coin",
+//   //     "MCB",
+//   //     10000000000,
+//   //     false
+//   //   );
+//   //   console.log(trx);
+// };
+
+// run();
