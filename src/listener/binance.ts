@@ -38,7 +38,7 @@ class BinanceListener {
 
     const publicKey = Evt.EvtKey.privateToPublic(this.privateKey);
 
-    console.log(`Sending to ${to} with amount ${amount}`);
+    console.log(`[INFO]: Sending to ${to} with amount ${amount}`);
     apiCaller
       .pushTransaction(
         { maxCharge: 10000000, payer: publicKey },
@@ -82,7 +82,7 @@ class BinanceListener {
       })
       .then(address => {
         const convertedAmount =
-          (((Number(targetSymbol.A) * 10 ** 8) / 10 ** 3) << 0) / 10 ** 5;
+          (((Number(targetSymbol.A) * 10 ** 8) / 10 ** 3) << 0) / 10 ** 5; // since Binance boosted to 8 decimals, conversion is needed here
         this.handleSwap(address, hash, String(convertedAmount.toFixed(5))); // TODO double check
       })
       .catch(e => {
@@ -91,22 +91,25 @@ class BinanceListener {
   };
 
   handleOpen = () => {
-    console.log("ws Opened");
+    console.log(`[INFO]: websocket (${config.ws}) Opened`);
     this.send({
       method: "subscribe",
       topic: "transfers",
       address: config.binanceSwapAddress
     });
   };
+
   handleMessage = (raw: string) => {
     const { stream, data } = JSON.parse(raw);
     if (stream === "transfers") {
       this.handleTransaction(data);
     }
   };
+
   handleError = (data: any) => {
     console.error(data);
   };
+
   handleClose = (data: any) => {
     console.log("closed", data);
   };

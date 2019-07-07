@@ -70,12 +70,14 @@ class EvtListener {
         privateKey
       );
       const amount = get(action, "data.number").split(" ")[0];
+
       console.log(
-        `Sending ${config.binanceChainSymbol} ${amount} to ${
+        `[INFO]: Sending ${config.binanceChainSymbol} ${amount} to ${
           config.binanceSwapAddress
         }`
       );
 
+      // transfer EVT-BNB to Evt Address specified in memo
       const trx = await client.transfer(
         config.binanceSwapAddress,
         get(action, "data.memo", ""),
@@ -83,7 +85,7 @@ class EvtListener {
         config.binanceChainSymbol
       );
 
-      console.log(trx);
+      console.log("[INFO]: Hash", get(trx, "result[0].hash"));
     }
   };
 
@@ -95,7 +97,7 @@ class EvtListener {
    *
    */
   run = async (endpoint: any) => {
-    console.log("Evt listener started...");
+    console.log(`[INFO]: Start listening on Evt (${config.evtNetwork.host})`);
 
     const apiCaller = Evt({
       endpoint
@@ -114,18 +116,14 @@ class EvtListener {
 
     // let LIB = String(LIB_DB || LIB_NODE);
     let LIB = String(LIB_NODE);
-    console.log(`Initial LIB: ${LIB}`);
+    console.log(`[INFO]: Initial LIB: ${LIB}`);
 
     let errorCount = 0;
     // monitoring start with LIB (inclusive)
     while (true) {
-      console.log(`Processing LIB: ${LIB}`);
       try {
         const detail = await apiCaller.getBlockDetail(LIB);
         await this.trxHandler(detail.transactions);
-        // detail.transactions.forEach(detail => {
-        //   console.log(JSON.stringify(detail.trx.transaction.actions, null, 4));
-        // });
 
         // increase LIB by 1
         LIB = String(Number(LIB) + 1);

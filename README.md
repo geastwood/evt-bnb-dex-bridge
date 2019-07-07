@@ -13,4 +13,4 @@
 
 - [ ] handle exception when sending Binance Chain Trx
 - [x] avoid endless loop
-- [ ] convert amount
+- [x] convert amount
