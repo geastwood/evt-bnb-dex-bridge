@@ -12,14 +12,41 @@ class Connection {
     const conn = await new Connection(connection).connect();
     // can chain multiple create
     conn.schema
-      .createTable("lib", table => {
+      .createTableIfNotExists("lib", table => {
         table.increments("id");
         table
           .bigInteger("lib")
           .unique()
           .notNullable()
           .index();
+        table
+          .boolean("processed")
+          .notNullable()
+          .defaultTo(false);
         table.timestamp("created_at").defaultTo(conn.fn.now());
+      })
+      .createTableIfNotExists("acts", table => {
+        table.increments("id");
+        table
+          .string("trx_id")
+          .notNullable();
+        table
+          .bigInteger("seq")
+          .notNullable();
+        table
+          .index(["trx_id", "seq"]);
+        table
+          .bigInteger("lib")
+          .unique()
+          .notNullable();
+        table
+          .string("status")
+          .notNullable()
+          .defaultTo("pending");
+        table
+          .string("data")
+          .nullable()
+          .defaultTo(null);
       })
       .then(() => {
         process.exit(0);

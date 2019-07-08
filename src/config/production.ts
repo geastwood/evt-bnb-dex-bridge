@@ -11,5 +11,6 @@ export default {
   evtSwapAddresses: [],
   binanceSwapAddress: "",
   binanceChainSymbol: "EVT-xxx", // this need to changed
-  prefix: "bnb"
+  prefix: "bnb",
+  defaultProcessBlockNum: 1
 };
