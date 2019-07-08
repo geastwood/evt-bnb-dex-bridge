@@ -15,11 +15,12 @@ class DB {
   };
 
   completeLib = async (lib: number) => {
-    await this.conn.table("lib")
-    .where({lib: lib})
-    .update({
-      processed: true
-    })
+    await this.conn
+      .table("lib")
+      .where({ lib: lib })
+      .update({
+        processed: true
+      });
   };
 
   // return undefined if none found
@@ -28,18 +29,24 @@ class DB {
     return get(lib, "[0].lib", config.defaultProcessBlockNum);
   };
 
-  addAct = async(trxId: string, seq: number, lib: number) => {
-    await this.conn.table("acts").insert({ trx_id: trxId, seq: seq, lib: lib });
-  }
+  addAct = async (trxId: string, seq: number, lib: number) => {
+    await this.conn.table("acts").insert({ trx_id: trxId, seq, lib });
+  };
 
-  updateAct = async(trxId: string, seq: number, status: string, data: string) => {
-    await this.conn.table("acts")
-    .where({trx_id: trxId, seq: seq})
-    .update({
-      status: status,
-      data: data
-    });
-  }
+  updateAct = async (
+    trxId: string,
+    seq: number,
+    status: string,
+    data: string
+  ) => {
+    await this.conn
+      .table("acts")
+      .where({ trx_id: trxId, seq })
+      .update({
+        status,
+        data
+      });
+  };
 
   static getInstance = async () => {
     if (instance === null) {

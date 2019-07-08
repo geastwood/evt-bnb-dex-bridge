@@ -27,14 +27,9 @@ class Connection {
       })
       .createTableIfNotExists("acts", table => {
         table.increments("id");
-        table
-          .string("trx_id")
-          .notNullable();
-        table
-          .bigInteger("seq")
-          .notNullable();
-        table
-          .index(["trx_id", "seq"]);
+        table.string("trx_id").notNullable();
+        table.bigInteger("seq").notNullable();
+        table.index(["trx_id", "seq"]);
         table
           .bigInteger("lib")
           .unique()
@@ -66,5 +61,3 @@ class Connection {
 }
 
 export default Connection;
-// dirty test
-// Connection.setup(config.db);
