@@ -100,39 +100,3 @@ class Binance {
 }
 
 export default Binance;
-
-// const run = async () => {
-//   const trx = await Binance.getTrx(
-//     "DE35196F2294ED197A840740429F501CF1FA483A489D6EBD986C3BB553C45A10"
-//   );
-//   console.log(getMemoFromTransaction(trx));
-// };
-// run();
-// const words =
-//   "dose boring turtle beef mind scheme estate board range beyond wife there blossom cat chronic cloth kid slide toilet elder delay weekend accuse pull";
-
-// const run = async () => {
-//   const privateKey = Binance.getPrivateKey(words);
-//   const client = await Binance.createClientWithPrivateKey(
-//     config.api,
-//     privateKey
-//   );
-
-//   const b = await client.getBalance(
-//     "tbnb1ltytz6mm37fjpha4gu9zl4plu93fmhgns66ahd",
-//     "MCB-074"
-//   );
-
-//   console.log(b);
-
-//   //   const trx = await client.tokens.issue(
-//   //     "tbnb1ltytz6mm37fjpha4gu9zl4plu93fmhgns66ahd",
-//   //     "Material Coin",
-//   //     "MCB",
-//   //     10000000000,
-//   //     false
-//   //   );
-//   //   console.log(trx);
-// };
-
-// run();

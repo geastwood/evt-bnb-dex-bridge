@@ -18,49 +18,67 @@ class EvtListener {
     this.db = db;
   }
 
-  trxHandler = async (transactions: any[]) => {
+  trxHandler = async (transactions: any[], lib: number) => {
     // extract all actions in transactions in a block
-    const actions = transactions.reduce((carry, current) => {
-      return carry.concat(get(current, "trx.transaction.actions", []));
-    }, []);
+    const actions = transactions.reduce(
+      (carry, current) =>
+        carry.concat(
+          get(current, "trx.transaction.actions", []).map((v, seq: number) => ({
+            ...v,
+            seq,
+            trxId: get(current, "trx.id", "")
+          }))
+        ),
+      []
+    );
 
     // filter out swap actions according to rules
     const swapActions = actions.filter(action => {
-      let isSwapAction = true;
       if (action.name !== "transferft") {
-        isSwapAction = false;
+        return false;
       }
 
       // only support evt
       if (Number(action.key) !== 1) {
-        isSwapAction = false;
+        return false;
       }
 
       // "to" address must be in the official evt swap addresses array
       if (!config.evtSwapAddresses.includes(get(action, "data.to"))) {
-        isSwapAction = false;
+        return false;
       }
 
-      if (
-        !BinanceChain.crypto.checkAddress(
-          get(action, "data.memo", ""),
-          config.prefix
-        )
-      ) {
-        isSwapAction = false;
+      // persist trx info from now
+      this.db.addAct(action.trxId, action.seq, lib);
+
+      const memoAddress = get(action, "data.memo", "");
+      if (!BinanceChain.crypto.checkAddress(memoAddress, config.prefix)) {
+        this.db.updateAct(
+          action.trxId,
+          action.seq,
+          "failed",
+          `Invalid "to" address (${memoAddress})`
+        );
+        return false;
       }
 
-      if (get(action, "data.memo", "") === config.binanceSwapAddress) {
+      if (memoAddress === config.binanceSwapAddress) {
         console.warn(
           `Warning: Skipping Transaction which sends EVT with Binance swap address "${
             config.binanceSwapAddress
           }" as memo.`
         );
 
-        isSwapAction = false;
+        this.db.updateAct(
+          action.trxId,
+          action.seq,
+          "failed",
+          `Invalid "to" address: "to" address is Binance swap address (${memoAddress})`
+        );
+        return false;
       }
 
-      return isSwapAction;
+      return true;
     });
 
     for (const action of swapActions) {
@@ -77,6 +95,8 @@ class EvtListener {
         }`
       );
 
+      this.db.updateAct(action.trxId, action.seq, "sending", "");
+
       // transfer EVT-BNB to Evt Address specified in memo
       const trx = await client.transfer(
         config.binanceSwapAddress,
@@ -86,6 +106,13 @@ class EvtListener {
       );
 
       console.log("[INFO]: Hash", get(trx, "result[0].hash"));
+
+      this.db.updateAct(
+        action.trxId,
+        action.seq,
+        "sent",
+        get(trx, "result[0].hash")
+      );
     }
   };
 
@@ -107,34 +134,65 @@ class EvtListener {
 
     let LIB_NODE = Number(nodeInfo.last_irreversible_block_num);
     let LIB_DB = Number(await this.db.getLastLib());
+    let LIB = "";
 
     if (LIB_DB > LIB_NODE) {
       throw new Error(
         "Invalid state: LIB in database is bigger than LIB in chain"
       );
+    } else {
+      LIB = String(LIB_DB + 1);
+
+      if (LIB_DB === 0) {
+        console.log(
+          `[INFO]: First run, start with default block number: ${LIB}`
+        );
+      } else {
+        console.log(`[INFO]: Resume with latest processed LIB: ${LIB}`);
+      }
     }
 
-    // let LIB = String(LIB_DB || LIB_NODE);
-    let LIB = String(LIB_NODE);
-    console.log(`[INFO]: Initial LIB: ${LIB}`);
-
     let errorCount = 0;
+    let shouldWaitForNewBlock = false;
     // monitoring start with LIB (inclusive)
     while (true) {
       try {
+        let time = process.hrtime();
+
+        // process
         const detail = await apiCaller.getBlockDetail(LIB);
-        await this.trxHandler(detail.transactions);
+
+        // record processing LIB into DB first
+        await this.db.addLib(Number(LIB));
+        // console.log("[DEBUG]: Processing LIB:", LIB);
+
+        await this.trxHandler(detail.transactions, Number(LIB));
+
+        // mark processed in DB
+        await this.db.completeLib(Number(LIB));
 
         // increase LIB by 1
         LIB = String(Number(LIB) + 1);
-        // save update to date LIB to database
-        this.db.addLib(Number(LIB));
+
         // reset error count
         errorCount = 0;
+
+        // sleep 500ms
+        let elp = process.hrtime(time)[1] / 1000000;
+
+        if (elp < 500 && shouldWaitForNewBlock) {
+          await new Promise(done => setTimeout(done, Math.max(300 - elp, 0)));
+        }
       } catch (e) {
         errorCount = errorCount + 1;
+
         if (get(e, "serverError.name") !== "unknown_block_exception") {
           console.log(`Error Processing LIB: ${LIB} `);
+        }
+
+        // when first hit "unknown_block_exception", set "shouldWaitForNewBlock" to be true
+        if (get(e, "serverError.name") === "unknown_block_exception") {
+          shouldWaitForNewBlock = true;
         }
 
         if (errorCount > 100) {

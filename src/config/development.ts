@@ -11,5 +11,6 @@ export default {
   evtSwapAddresses: ["EVT7f6pEXvD8E2mbytzkirYqv9DBxEd7ebDv9TJpQ6kuKPemLtKUY"],
   binanceSwapAddress: "tbnb1ltytz6mm37fjpha4gu9zl4plu93fmhgns66ahd",
   binanceChainSymbol: "MCB-704",
-  prefix: "tbnb"
+  prefix: "tbnb",
+  defaultProcessBlockNum: 1
 };

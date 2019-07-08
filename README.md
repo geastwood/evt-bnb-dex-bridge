@@ -2,13 +2,13 @@
 
 ## Get started
 
-1. install dependencies with `./yarn`
+1. install dependencies with `yarn`
 
 2. setup `mysql`
 
    Have mysql instance running either with docker or local on machine. Create a database called `bnbbridge` (which is specified in `src/config/development.ts` and `src/config/production.ts`). Make sure the `db` settings in config file are correct.
 
-   run `./yarn setup:db` to create tables
+   run `yarn setup:db` to create tables
 
 3. source in environment variables
 
@@ -26,8 +26,8 @@
 
 4. start two listeners (evt and binance)
 
-   - run `./yarn listen:evt` starts the listening process on everiToken public chain
-   - run `./yarn listen:binance` starts the listening process on binance dex
+   - run `yarn listen:evt` starts the listening process on everiToken public chain
+   - run `yarn listen:binance` starts the listening process on binance dex
 
 5. ready to start swapping between **evt** and **binance dex**
 
