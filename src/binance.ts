@@ -3,7 +3,6 @@ import BinanceChain from "@binance-chain/javascript-sdk";
 import { writeFileSync } from "fs";
 import { join } from "path";
 import fetch from "isomorphic-fetch";
-import { getMemoFromTransaction } from "./utils";
 
 class Binance {
   readonly client: any;
@@ -95,8 +94,6 @@ class Binance {
       sequence
     );
   };
-
-  issueToken = async () => {};
 }
 
 export default Binance;
