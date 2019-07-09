@@ -47,6 +47,14 @@ class DB {
         data
       });
   };
+  addBinanceTrx = async (hash: string) =>
+    this.conn.table("binance_trx").insert({ hash });
+
+  updateBinanceTrx = async (hash: string, status: string, data: string) =>
+    this.conn
+      .table("binance_trx")
+      .where({ hash })
+      .update({ status, data });
 
   static getInstance = async () => {
     if (instance === null) {

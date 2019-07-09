@@ -42,6 +42,21 @@ class Connection {
           .string("data")
           .nullable()
           .defaultTo(null);
+        table.timestamp("updated_at").defaultTo(conn.fn.now());
+      })
+      .createTableIfNotExists("binance_trx", table => {
+        table.increments("id");
+        table.string("hash").notNullable();
+        table.index(["hash"]);
+        table
+          .string("status")
+          .notNullable()
+          .defaultTo("pending");
+        table
+          .string("data")
+          .nullable()
+          .defaultTo(null);
+        table.timestamp("updated_at").defaultTo(conn.fn.now());
       })
       .then(() => {
         process.exit(0);

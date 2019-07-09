@@ -41,8 +41,3 @@
 
 - [Binance developer doc](https://docs.binance.org/index.html)
 - [Binance dex migration guild](https://community.binance.org/topic/196/listing-migration-process-on-binance-chain)
-
-## Todo
-
-- [ ] replace ts-node with node
-- [ ] handle exception when sending Binance Chain Trx
