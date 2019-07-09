@@ -4,8 +4,8 @@
   "description": "EveriToken to Binance Chain bridge",
   "main": "index.js",
   "scripts": {
-    "listen:evt": "ts-node src/listener/evt",
-    "listen:binance": "ts-node src/listener/binance",
+    "listen:evt": "rm -rf ./dist && tsc || echo 'ok' && node dist/listener/evt",
+    "listen:binance": "rm -rf ./dist && tsc || echo 'ok' && node dist/listener/binance",
     "setup:db": "ts-node src/db/setup"
   },
   "keywords": [
