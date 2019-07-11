@@ -1,12 +1,13 @@
 {
   "name": "evt-bnb-bridge",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "EveriToken to Binance Chain bridge",
   "main": "index.js",
   "scripts": {
     "listen:evt": "rm -rf ./dist && tsc || echo 'ok' && node dist/listener/evt",
     "listen:binance": "rm -rf ./dist && tsc || echo 'ok' && node dist/listener/binance",
-    "setup:db": "ts-node src/db/setup"
+    "setup:db": "ts-node src/db/setup",
+    "test": "mocha -r ts-node/register src/**/*.spec.ts"
   },
   "keywords": [
     "everitoken",
@@ -18,9 +19,13 @@
   "license": "ISC",
   "devDependencies": {
     "@types/": "binance-chain/javascript-sdk",
+    "@types/chai": "^4.1.7",
     "@types/lodash": "^4.14.135",
+    "@types/mocha": "^5.2.7",
     "@types/node": "^12.0.12",
     "@types/ws": "^6.0.1",
+    "chai": "^4.2.0",
+    "mocha": "^6.1.4",
     "ts-node": "^8.3.0",
     "typescript": "^3.5.2"
   },
