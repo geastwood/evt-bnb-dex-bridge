@@ -4,6 +4,7 @@ import { get } from "lodash";
 import config from "../config";
 import Binance from "../binance";
 import { getMemoFromTransaction } from "../utils";
+import { convertBinanceAmountToEvt } from "./utils";
 import DB from "../db";
 
 const start = () => {
@@ -13,10 +14,6 @@ const start = () => {
 };
 
 // since Binance boosted to 8 decimals, conversion is needed here
-export const convertBinanceAmountToEvt = (amount: string) => {
-  const converted = (((Number(amount) * 10 ** 8) / 10 ** 3) << 0) / 10 ** 5;
-  return String(converted.toFixed(5));
-};
 
 class BinanceListener {
   private db: DB;
@@ -128,12 +125,12 @@ class BinanceListener {
         addressCache = address;
         const isValid = Evt.EvtKey.isValidAddress(address);
 
+        const convertedAmount = convertBinanceAmountToEvt(targetSymbol.A);
+
         if (!isValid) {
           this.db.updateBinanceTrx(hash, "failed", `${address} is not valid.`);
         } else {
-          const convertedAmount =
-            (((Number(targetSymbol.A) * 10 ** 8) / 10 ** 3) << 0) / 10 ** 5; // since Binance boosted to 8 decimals, conversion is needed here
-          this.handleSwap(address, hash, String(convertedAmount.toFixed(5))); // TODO double check
+          this.handleSwap(address, hash, convertedAmount);
         }
       })
       .catch(e => {

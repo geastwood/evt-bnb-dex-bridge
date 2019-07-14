@@ -19,6 +19,7 @@
   "license": "ISC",
   "devDependencies": {
     "@types/": "binance-chain/javascript-sdk",
+    "@types/big.js": "^4.0.5",
     "@types/chai": "^4.1.7",
     "@types/lodash": "^4.14.135",
     "@types/mocha": "^5.2.7",
@@ -31,6 +32,7 @@
   },
   "dependencies": {
     "@binance-chain/javascript-sdk": "^2.14.0",
+    "big.js": "^5.2.2",
     "evtjs": "^5.4.15",
     "isomorphic-fetch": "^2.2.1",
     "knex": "^0.18.3",
