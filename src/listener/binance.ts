@@ -1,10 +1,10 @@
 import WebSocket from "ws";
-import config from "../config";
 import Evt from "evtjs";
+import { get } from "lodash";
+import config from "../config";
 import Binance from "../binance";
 import { getMemoFromTransaction } from "../utils";
 import DB from "../db";
-import { get } from "lodash";
 
 const start = () => {
   DB.getInstance().then(db => {
