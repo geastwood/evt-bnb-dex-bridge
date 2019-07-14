@@ -1,4 +1,3 @@
-import config from "../config";
 import knex from "knex";
 
 class Connection {
@@ -63,14 +62,14 @@ class Connection {
         console.log("success");
       })
       .catch(e => {
-        process.exit(1);
         console.error(e);
+        process.exit(1);
       });
   };
 
   connect = async () =>
     knex({
-      client: "mysql",
+      client: "pg",
       connection: this.connection
     });
 }
