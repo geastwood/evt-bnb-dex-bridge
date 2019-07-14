@@ -1,16 +1,19 @@
 import WebSocket from "ws";
-import config from "../config";
 import Evt from "evtjs";
+import { get } from "lodash";
+import config from "../config";
 import Binance from "../binance";
 import { getMemoFromTransaction } from "../utils";
+import { convertBinanceAmountToEvt } from "./utils";
 import DB from "../db";
-import { get } from "lodash";
 
 const start = () => {
   DB.getInstance().then(db => {
     new BinanceListener(config.ws, db);
   });
 };
+
+// since Binance boosted to 8 decimals, conversion is needed here
 
 class BinanceListener {
   private db: DB;
@@ -122,12 +125,12 @@ class BinanceListener {
         addressCache = address;
         const isValid = Evt.EvtKey.isValidAddress(address);
 
+        const convertedAmount = convertBinanceAmountToEvt(targetSymbol.A);
+
         if (!isValid) {
           this.db.updateBinanceTrx(hash, "failed", `${address} is not valid.`);
         } else {
-          const convertedAmount =
-            (((Number(targetSymbol.A) * 10 ** 8) / 10 ** 3) << 0) / 10 ** 5; // since Binance boosted to 8 decimals, conversion is needed here
-          this.handleSwap(address, hash, String(convertedAmount.toFixed(5))); // TODO double check
+          this.handleSwap(address, hash, convertedAmount);
         }
       })
       .catch(e => {
