@@ -39,5 +39,22 @@
 
 ## Resources
 
+> create `bnbbridge` db in postgresql
+>
+> ```postgresql
+> CREATE DATABASE bnbbridge;
+> CREATE USER test WITH ENCRYPTED PASSWORD 'test';
+> GRANT ALL PRIVILEGES ON DATABASE bnbbridge TO test;
+> ```
+
+> spin up a `postgresql` container for testing
+>
+> ```bash
+> $ docker pull postgres
+> $ docker run --name bnbbridge -p 5432:5432/tcp -d postgres
+> $ docker exec -it bnbbridge /bin/bash # enter shell
+> $ psql -U postgres
+> ```
+
 - [Binance developer doc](https://docs.binance.org/index.html)
 - [Binance dex migration guild](https://community.binance.org/topic/196/listing-migration-process-on-binance-chain)
