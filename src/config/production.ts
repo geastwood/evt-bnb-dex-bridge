@@ -1,5 +1,5 @@
 export default {
-  api: 'https://dex.binance.org',
+  api: 'https://dex.binance.org/',
   ws: 'wss://dex.binance.org/api/ws',
   evtNetwork: { host: 'mainnet7.everitoken.io', port: 443, protocol: 'https' },
   db: 'postgres://xxx:xxx@localhost:5432/bnbbridge',
