@@ -21,10 +21,7 @@ class Binance {
     return client;
   };
 
-  static createClientWithPrivateKey = async (
-    url: string,
-    privateKey: string
-  ) => {
+  static createClientWithPrivateKey = async (url: string, privateKey: string) => {
     return Binance.createClient(url, async c => {
       await c.initChain();
       c.setPrivateKey(privateKey);
@@ -38,16 +35,8 @@ class Binance {
     return BinanceChain.crypto.generateMnemonic();
   };
 
-  static getPrivateKey = (
-    mnemonic: string,
-    derive: boolean = true,
-    index: number = 0
-  ) => {
-    return BinanceChain.crypto.getPrivateKeyFromMnemonic(
-      mnemonic,
-      derive,
-      index
-    );
+  static getPrivateKey = (mnemonic: string, derive: boolean = true, index: number = 0) => {
+    return BinanceChain.crypto.getPrivateKeyFromMnemonic(mnemonic, derive, index);
   };
 
   static getPublicKey = (privateKey: string): string => {
@@ -55,20 +44,13 @@ class Binance {
   };
 
   static getAddress = (publicKey: string): string => {
-    return BinanceChain.crypto.getAddressFromPublicKey(
-      publicKey,
-      config.prefix
-    );
+    return BinanceChain.crypto.getAddressFromPublicKey(publicKey, config.prefix);
   };
 
   /**
    * Keystore is used to login
    */
-  static generateKeyStore = (
-    privateKey: string,
-    password: string,
-    folder: string
-  ) => {
+  static generateKeyStore = (privateKey: string, password: string, folder: string) => {
     const keyStore = BinanceChain.crypto.generateKeyStore(privateKey, password);
     writeFileSync(join(folder, "test.keystore"), JSON.stringify(keyStore));
   };
@@ -83,16 +65,9 @@ class Binance {
     amount: string,
     asset: string,
     memo = "",
-    sequence = null
+    sequence = null,
   ) => {
-    return await this.client.transfer(
-      fromAddress,
-      toAddress,
-      amount,
-      asset,
-      memo,
-      sequence
-    );
+    return await this.client.transfer(fromAddress, toAddress, amount, asset, memo, sequence);
   };
 }
 

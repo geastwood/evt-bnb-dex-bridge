@@ -17,13 +17,11 @@ const start = () => {
 
 class BinanceListener {
   private db: DB;
-  private api: string;
   private ws: WebSocket;
   private privateKey: string;
   private pingTimeoutHandler: any;
   constructor(api: string, db: DB) {
     this.db = db;
-    this.api = api;
     this.privateKey = process.env.EVT_ACCOUNT_PRIVATE_KEY;
     this.pingTimeoutHandler = null;
 
@@ -60,38 +58,27 @@ class BinanceListener {
     // init apiCaller with private key
     const apiCaller = Evt({
       endpoint: config.evtNetwork,
-      keyProvider: [this.privateKey]
+      keyProvider: [this.privateKey],
     });
 
     const publicKey = Evt.EvtKey.privateToPublic(this.privateKey);
 
-    this.db.updateBinanceTrx(
-      hash,
-      "sending",
-      `Sending to ${to} with amount ${amount}`
-    );
+    this.db.updateBinanceTrx(hash, "sending", `Sending to ${to} with amount ${amount}`);
 
     const action = {
       from: publicKey,
       to,
       number: `${amount} S#1`,
-      memo: hash
+      memo: hash,
     };
     // @ts-ignore
     apiCaller
-      .pushTransaction(
-        { maxCharge: 10000000, payer: publicKey },
-        new Evt.EvtAction("transferft", action)
-      )
+      .pushTransaction({ maxCharge: 10000000, payer: publicKey }, new Evt.EvtAction("transferft", action))
       .then(trx => {
         this.db.updateBinanceTrx(hash, "sent", get(trx, "transactionId", ""));
       })
       .catch(e => {
-        this.db.updateBinanceTrx(
-          hash,
-          "failed",
-          `Error sending Evt transaction: ${JSON.stringify(action)}`
-        );
+        this.db.updateBinanceTrx(hash, "failed", `Error sending Evt transaction: ${JSON.stringify(action)}`);
       });
   };
 
@@ -107,9 +94,7 @@ class BinanceListener {
     }
 
     // symbol must have EVT-BNB token, whose amount will be considered
-    const targetSymbol = targetTransfer.c.find(
-      ({ a }) => a === config.binanceChainSymbol
-    );
+    const targetSymbol = targetTransfer.c.find(({ a }) => a === config.binanceChainSymbol);
 
     if (!targetSymbol) {
       return;
@@ -133,12 +118,8 @@ class BinanceListener {
           this.handleSwap(address, hash, convertedAmount);
         }
       })
-      .catch(e => {
-        this.db.updateBinanceTrx(
-          hash,
-          "failed",
-          `getTrx failed (hash: "${hash}", address: "${addressCache}")`
-        );
+      .catch(() => {
+        this.db.updateBinanceTrx(hash, "failed", `getTrx failed (hash: "${hash}", address: "${addressCache}")`);
       });
   };
 
@@ -147,7 +128,7 @@ class BinanceListener {
     this.send({
       method: "subscribe",
       topic: "transfers",
-      address: config.binanceSwapAddress
+      address: config.binanceSwapAddress,
     });
   };
 

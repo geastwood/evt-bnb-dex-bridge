@@ -26,10 +26,10 @@ class EvtListener {
           get(current, "trx.transaction.actions", []).map((v, seq: number) => ({
             ...v,
             seq,
-            trxId: get(current, "trx.id", "")
-          }))
+            trxId: get(current, "trx.id", ""),
+          })),
         ),
-      []
+      [],
     );
 
     // filter out swap actions according to rules
@@ -53,27 +53,20 @@ class EvtListener {
 
       const memoAddress = get(action, "data.memo", "");
       if (!BinanceChain.crypto.checkAddress(memoAddress, config.prefix)) {
-        this.db.updateAct(
-          action.trxId,
-          action.seq,
-          "failed",
-          `Invalid "to" address (${memoAddress})`
-        );
+        this.db.updateAct(action.trxId, action.seq, "failed", `Invalid "to" address (${memoAddress})`);
         return false;
       }
 
       if (memoAddress === config.binanceSwapAddress) {
         console.warn(
-          `Warning: Skipping Transaction which sends EVT with Binance swap address "${
-            config.binanceSwapAddress
-          }" as memo.`
+          `Warning: Skipping Transaction which sends EVT with Binance swap address "${config.binanceSwapAddress}" as memo.`,
         );
 
         this.db.updateAct(
           action.trxId,
           action.seq,
           "failed",
-          `Invalid "to" address: "to" address is Binance swap address (${memoAddress})`
+          `Invalid "to" address: "to" address is Binance swap address (${memoAddress})`,
         );
         return false;
       }
@@ -83,17 +76,10 @@ class EvtListener {
 
     for (const action of swapActions) {
       const privateKey = Binance.getPrivateKey(this.words);
-      const client = await Binance.createClientWithPrivateKey(
-        config.api,
-        privateKey
-      );
+      const client = await Binance.createClientWithPrivateKey(config.api, privateKey);
       const amount = get(action, "data.number").split(" ")[0];
 
-      console.log(
-        `[INFO]: Sending ${config.binanceChainSymbol} ${amount} to ${
-          config.binanceSwapAddress
-        }`
-      );
+      console.log(`[INFO]: Sending ${config.binanceChainSymbol} ${amount} to ${config.binanceSwapAddress}`);
 
       this.db.updateAct(action.trxId, action.seq, "sending", "");
 
@@ -102,17 +88,12 @@ class EvtListener {
         config.binanceSwapAddress,
         get(action, "data.memo", ""),
         amount,
-        config.binanceChainSymbol
+        config.binanceChainSymbol,
       );
 
       console.log("[INFO]: Hash", get(trx, "result[0].hash"));
 
-      this.db.updateAct(
-        action.trxId,
-        action.seq,
-        "sent",
-        get(trx, "result[0].hash")
-      );
+      this.db.updateAct(action.trxId, action.seq, "sent", get(trx, "result[0].hash"));
     }
   };
 
@@ -127,33 +108,25 @@ class EvtListener {
     console.log(`[INFO]: Start listening on Evt (${config.evtNetwork.host})`);
 
     const apiCaller = Evt({
-      endpoint
+      endpoint,
     });
 
     const nodeInfo = await apiCaller.getInfo();
 
     let LIB_NODE = Number(nodeInfo.last_irreversible_block_num);
     let LIB_DB = Number(await this.db.getLastLib());
-    let LIB = "";
 
-    if (LIB_DB > LIB_NODE) {
-      throw new Error(
-        "Invalid state: LIB in database is bigger than LIB in chain"
-      );
+    let LIB = String(LIB_DB + 1);
+
+    if (LIB_DB === 0) {
+      console.log(`[INFO]: First run, start with default block number: ${LIB}`);
     } else {
-      LIB = String(LIB_DB + 1);
-
-      if (LIB_DB === 0) {
-        console.log(
-          `[INFO]: First run, start with default block number: ${LIB}`
-        );
-      } else {
-        console.log(`[INFO]: Resume with latest processed LIB: ${LIB}`);
-      }
+      console.log(`[INFO]: Resume with latest processed LIB: ${LIB}`);
     }
 
     let errorCount = 0;
     let shouldWaitForNewBlock = false;
+
     // monitoring start with LIB (inclusive)
     while (true) {
       try {
@@ -195,14 +168,9 @@ class EvtListener {
           shouldWaitForNewBlock = true;
         }
 
-        if (errorCount > 100) {
+        if (errorCount > 10) {
           console.log("Adding timeout, errorCount is bigger than threshold");
-          Atomics.wait(
-            new Int32Array(new SharedArrayBuffer(4)),
-            0,
-            0,
-            1000 * 100
-          );
+          Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 1000 * 10);
         }
       }
     }
@@ -214,7 +182,7 @@ export default EvtListener;
 const run = async () => {
   const db = await DB.getInstance();
   const e = new EvtListener(db);
-  e.run(config.evtNetwork);
+  await e.run(config.evtNetwork);
 };
 
 run();

@@ -19,7 +19,7 @@ class DB {
       .table("lib")
       .where({ lib: lib })
       .update({
-        processed: true
+        processed: true,
       });
   };
 
@@ -33,22 +33,16 @@ class DB {
     await this.conn.table("acts").insert({ trx_id: trxId, seq, lib });
   };
 
-  updateAct = async (
-    trxId: string,
-    seq: number,
-    status: string,
-    data: string
-  ) => {
+  updateAct = async (trxId: string, seq: number, status: string, data: string) => {
     await this.conn
       .table("acts")
       .where({ trx_id: trxId, seq })
       .update({
         status,
-        data
+        data,
       });
   };
-  addBinanceTrx = async (hash: string) =>
-    this.conn.table("binance_trx").insert({ hash });
+  addBinanceTrx = async (hash: string) => this.conn.table("binance_trx").insert({ hash });
 
   updateBinanceTrx = async (hash: string, status: string, data: string) =>
     this.conn

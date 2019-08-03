@@ -7,5 +7,5 @@ export default {
   binanceSwapAddress: "tbnb1ltytz6mm37fjpha4gu9zl4plu93fmhgns66ahd",
   binanceChainSymbol: "MCB-704",
   prefix: "tbnb",
-  defaultProcessBlockNum: 1
+  defaultProcessBlockNum: 0,
 };
