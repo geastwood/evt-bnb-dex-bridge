@@ -4,6 +4,7 @@ import DB from "../db";
 import { get } from "lodash";
 import BinanceChain from "@binance-chain/javascript-sdk";
 import Binance from "../binance";
+import { adjustAmountWithFee } from "../listener/utils";
 
 class EvtListener {
   db: DB;
@@ -51,13 +52,14 @@ class EvtListener {
       // persist trx info from now
       this.db.addAct(action.trxId, action.seq, lib);
 
-      const memoAddress = get(action, "data.memo", "");
-      if (!BinanceChain.crypto.checkAddress(memoAddress, config.prefix)) {
-        this.db.updateAct(action.trxId, action.seq, "failed", `Invalid "to" address (${memoAddress})`);
+      const binanceAddress = get(action, "data.memo", "");
+
+      if (!BinanceChain.crypto.checkAddress(binanceAddress, config.prefix)) {
+        this.db.updateAct(action.trxId, action.seq, "failed", `Invalid "to" address (${binanceAddress})`);
         return false;
       }
 
-      if (memoAddress === config.binanceSwapAddress) {
+      if (binanceAddress === config.binanceSwapAddress) {
         console.warn(
           `Warning: Skipping Transaction which sends EVT with Binance swap address "${config.binanceSwapAddress}" as memo.`,
         );
@@ -66,7 +68,7 @@ class EvtListener {
           action.trxId,
           action.seq,
           "failed",
-          `Invalid "to" address: "to" address is Binance swap address (${memoAddress})`,
+          `Invalid "to" address: "to" address is Binance swap address (${binanceAddress})`,
         );
         return false;
       }
@@ -79,21 +81,34 @@ class EvtListener {
       const client = await Binance.createClientWithPrivateKey(config.api, privateKey);
       const amount = get(action, "data.number").split(" ")[0];
 
-      console.log(`[INFO]: Sending ${config.binanceChainSymbol} ${amount} to ${config.binanceSwapAddress}`);
+      //
+      const adjustedAmount = adjustAmountWithFee(amount);
 
-      this.db.updateAct(action.trxId, action.seq, "sending", "");
+      if (parseFloat(adjustedAmount) > 0) {
+        console.log(`[INFO]: Sending ${config.binanceChainSymbol} ${adjustedAmount} to ${config.binanceSwapAddress}`);
 
-      // transfer EVT-BNB to Evt Address specified in memo
-      const trx = await client.transfer(
-        config.binanceSwapAddress,
-        get(action, "data.memo", ""),
-        amount,
-        config.binanceChainSymbol,
-      );
+        this.db.updateAct(action.trxId, action.seq, "sending", "");
 
-      console.log("[INFO]: Hash", get(trx, "result[0].hash"));
+        // transfer EVT-BNB to Evt Address specified in memo
+        const trx = await client.transfer(
+          config.binanceSwapAddress,
+          get(action, "data.memo", ""),
+          adjustedAmount,
+          config.binanceChainSymbol,
+        );
 
-      this.db.updateAct(action.trxId, action.seq, "sent", get(trx, "result[0].hash"));
+        console.log("[INFO]: Hash", get(trx, "result[0].hash"));
+
+        this.db.updateAct(action.trxId, action.seq, "sent", get(trx, "result[0].hash"));
+      } else {
+        console.log(`Adjusted amount "${adjustedAmount}" is smaller than 0, skipping`);
+        this.db.updateAct(
+          action.trxId,
+          action.seq,
+          "skipping",
+          `Adjusted amount "${adjustedAmount}" is smaller than 0, skipping`,
+        );
+      }
     }
   };
 

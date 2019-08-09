@@ -14,3 +14,5 @@ export const convertBinanceAmountToEvt = (amount: string) => {
     .div(10 ** 5)
     .toFixed(5);
 };
+
+export const adjustAmountWithFee = (amount: string) => Math.max(0, parseFloat(amount) - 3).toFixed(5);
