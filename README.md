@@ -14,6 +14,8 @@
 
    - `BINANCE_ACCOUNT_WORDS` => mnemonic words that controls swap account on Binance chain
    - `EVT_ACCOUNT_PRIVATE_KEY` => Private key that controls swap account on everiToken public chain
+   - `PG_BRIDGE_USERNAME` => postgres user name for production environment
+   - `PG_BRIDGE_PASSWORD` => postgres password for production environment
 
    In case of `development`
 
