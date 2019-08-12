@@ -81,7 +81,7 @@ class EvtListener {
       const client = await Binance.createClientWithPrivateKey(config.api, privateKey);
       const amount = get(action, "data.number").split(" ")[0];
 
-      //
+      // adjust the amount with fee
       const adjustedAmount = adjustAmountWithFee(amount);
 
       if (parseFloat(adjustedAmount) > 0) {

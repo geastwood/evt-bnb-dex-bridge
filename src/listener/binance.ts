@@ -4,7 +4,7 @@ import { get } from "lodash";
 import config from "../config";
 import Binance from "../binance";
 import { getMemoFromTransaction } from "../utils";
-import { convertBinanceAmountToEvt } from "./utils";
+import { convertBinanceAmountToEvt, adjustAmountWithFee } from "./utils";
 import DB from "../db";
 
 const start = () => {
@@ -111,12 +111,23 @@ class BinanceListener {
         const isValid = Evt.EvtKey.isValidAddress(address);
 
         const convertedAmount = convertBinanceAmountToEvt(targetSymbol.A);
+        const adjustedAmount = adjustAmountWithFee(convertedAmount);
 
         if (!isValid) {
           this.db.updateBinanceTrx(hash, "failed", `${address} is not valid.`);
-        } else {
-          this.handleSwap(address, hash, convertedAmount);
+          return;
         }
+
+        if (parseFloat(adjustedAmount) <= 0) {
+          this.db.updateBinanceTrx(
+            hash,
+            "failed",
+            `Adjusted amount "${adjustedAmount} (original value: ${convertedAmount})" is smaller than 0, skipping`,
+          );
+          return;
+        }
+
+        this.handleSwap(address, hash, adjustedAmount);
       })
       .catch(() => {
         this.db.updateBinanceTrx(hash, "failed", `getTrx failed (hash: "${hash}", address: "${addressCache}")`);
