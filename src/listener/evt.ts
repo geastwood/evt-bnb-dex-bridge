@@ -173,6 +173,11 @@ class EvtListener {
         }
       } catch (e) {
         errorCount = errorCount + 1;
+        if (/error while deserialization/.test(e.toString())) {
+          // increase LIB by 1
+          LIB = String(Number(LIB) + 1);
+          continue;
+        }
 
         if (get(e, "serverError.name") !== "unknown_block_exception") {
           console.log(`Error Processing LIB: ${LIB} `);
