@@ -31,7 +31,6 @@ class Connection {
         table.index(["trx_id", "seq"]);
         table
           .bigInteger("lib")
-          .unique()
           .notNullable();
         table
           .string("status")
@@ -42,6 +41,7 @@ class Connection {
           .nullable()
           .defaultTo(null);
         table.timestamp("updated_at").defaultTo(conn.fn.now());
+        table.unique(["lib", "seq"]);
       })
       .createTableIfNotExists("binance_trx", table => {
         table.increments("id");
