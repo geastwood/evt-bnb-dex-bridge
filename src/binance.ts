@@ -24,8 +24,8 @@ class Binance {
   static createClientWithPrivateKey = async (url: string, privateKey: string) => {
     return Binance.createClient(url, async c => {
       await c.initChain();
-      c.setPrivateKey(privateKey);
       c.chooseNetwork(config.prefix === "tbnb" ? "testnet" : "mainnet");
+      c.setPrivateKey(privateKey);
       // use default delegates (signing, broadcast)
       c.useDefaultSigningDelegate();
       c.useDefaultBroadcastDelegate();
